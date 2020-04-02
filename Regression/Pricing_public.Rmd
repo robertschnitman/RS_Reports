@@ -1,0 +1,78 @@
+---
+title: 'Wyzant Pricing Analysis: R Tutors'
+author: "Robert Schnitman"
+date: "December 12, 2019"
+output: pdf_document
+toc: true
+
+---
+\newpage
+```{r setup, include=FALSE}
+libs <- c('tidyverse', 'magrittr', 'stargazer', 'knitr', 'kableExtra')
+lapply(libs, library, character.only = TRUE)
+```
+
+```{r data, include = FALSE}
+df <- read_csv('Pricing.csv') 
+
+vars <- c('price', 'rating', 'number_of_ratings', 'hours_tutored', 'level_college')
+
+df2 <- df[, vars] %>%
+  filter(price < mean(price) + 2*sd(price) & price > mean(price) - 2*sd(price))
+
+df3 <- df2 %>%
+  map_at(c('price', 'rating', 'number_of_ratings', 'hours_tutored'), log) %>%
+  bind_cols() %>%
+  mutate(ratingsq = rating^2)
+```
+
+# Data Overview
+```{r data_overview, warning = FALSE, echo = FALSE}
+sp <- summary(df$price)
+names(sp) <- paste0(names(sp), 'Price')
+
+sp
+
+df %>%
+  #filter(hours_tutored < 500) %>%
+  ggplot() + 
+    aes(y = hours_tutored, x = price, size = rating) + 
+    geom_point(alpha = 0.6, col = 'cyan4') + 
+    geom_smooth(method = 'lm') + 
+    labs(x = 'Hourly Rate',
+         y = 'Hours Tutored as of 2019-12-11',
+         title = 'Hours Tutored vs. Price, 2019-12-11') +
+    theme_light()
+
+df %>%
+  filter(hours_tutored < 500) %>%
+  ggplot() + 
+    aes(y = hours_tutored, x = price, size = rating) + 
+    geom_point(alpha = 0.6, col = 'cyan4') + 
+    geom_smooth(method = 'lm') + 
+    labs(x = 'Hourly Rate',
+         y = 'Hours Tutored (< 500) as of 2019-12-11',
+         title = 'Hours Tutored (< 500) vs. Price, 2019-12-11') +
+    theme_light()
+
+```
+\newpage
+
+# Modeling
+
+$$ Model_1: price = \alpha_0 + \alpha_1Rating + \alpha_2NumberofRatings + \alpha_3HoursTutored + \alpha_4CollegeLevel$$
+$$ Model_2: HoursTutored = \beta_0 + \beta_1Price + \beta_2Rating + \beta_3NumberofRatings + \beta_4CollegeLevel$$
+$$ Model_3: log(price) = \gamma_0 + \gamma_1log(Rating) + \gamma_2log(NumberofRatings) + \gamma_3log(HoursTutored) + \gamma_4CollegeLevel$$
+$$ Model_4: log(HoursTutored) = \delta_0 + \delta_1log(Price) + \delta_2log(Rating) + \delta_3log(NumberofRatings) + \delta_4CollegeLevel$$
+
+```{r modeling, warning = FALSE, echo = FALSE, results = 'asis'}
+m1 <- lm(price ~ ., df2)
+m2 <- lm(hours_tutored ~ ., df2)
+m3 <- lm(price ~ ., df3)
+m4 <- lm(hours_tutored ~ ., df3)
+
+stargazer(m1, m2, m3, m4)
+```
+*Models 3 and 4 have been log-transformed (except for *CollegeLevel*)*
+
+\newpage

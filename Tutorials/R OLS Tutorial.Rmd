@@ -1,0 +1,78 @@
+---
+title: "OLS in R Tutorial"
+author: "Robert Schnitman"
+output:
+  pdf_document: default
+---
+
+# 1. Purpose
+This is a tutorial on how to estimate and interpret OLS regressions in R.
+
+# 2. Set Up
+First, let's load the *mtcars* dataset.
+
+```{r setup}
+data(mtcars) # Load data.
+```
+
+# 3. Model Results 
+
+Next, we'll set up a model with *lm()* and estimate it with *summary()*. 
+
+In *lm()*, we need two basic inputs: the formula and data. The formula is based on the format of `y ~ x1 + x2 + ...`, where *y* is your dependent variable and the *x* terms are the covariates. The function *summary()* is general-purpose, meaning we can apply it to any object. The output of *summary()* differs depending on the input. For example, if we executed *summary(mtcars)*, we will obtain summary statistics for each of the variables. In contrast, applying the function on a model will produce an ANOVA table, coefficient table, and model fit statistics based on what we specified in *lm()*.
+
+For this model, we want to analyze how an automobile's weight (*wt*) and horsepower (*hp*) influence its miles per gallon (*mpg*).
+
+```{r model}
+mymodel <- lm(formula = mpg ~ wt + hp, data = mtcars) # Save model.
+summary(mymodel)                                      # Print model results!
+
+### Notes ###
+# Alternatively, we could have typed "summary(lm(mpg ~ wt + hp, mtcars))".
+# This format is not preferable when chaining 3 or more functions with multiple inputs.
+# Readability is important! You never know when you need to come back to a file!
+##################
+```
+
+```{r coef, include = FALSE}
+coef_x0 <- mymodel$coefficients[1]
+coef_wt <- mymodel$coefficients['wt']
+coef_hp <- mymodel$coefficients['hp']
+rsq     <- round(summary(mymodel)$r.squared*100, 2)
+```
+So, a 1-ton increase in a car's weight *decreases* *mpg* by `r abs(round(coef_wt, 2))`. Horsepower also seems to `r if (coef_hp < 0) {paste('decrease')} else if (coef_hp > 0) {paste('increase')} else {paste('does not influence')}` *mpg*: the coefficient is `r round(coef_hp, 2)`. If the covariates equal 0, the expected *mpg* is `r round(coef_x0, 2)`.
+
+These terms are statistically significant at the 5% level (determined by the p-value column, *Pr(>|t|)*). According to the R-squared of `r paste(rsq, '%', sep = '')`, our model as a whole strongly explains changes in *mpg*.
+
+# 4. Diagnostics
+
+How else can we diagnose our the results of our model? How do we know its biased? We will use *scatter.smooth()* to examine whether the residuals are 0 on average.
+
+```{r plot}
+fit <- predict(mymodel)                # predict() calculates our fitted values, yhat.
+res <- resid(mymodel)                  # resid() computes our residuals, y - yhat.
+
+scatter.smooth(y = res,                # Are the residuals 0 on average?
+               x = fit,
+               xlab = 'Fitted Values', # X-axis label.
+               ylab = 'Residuals')     # Y-axis label.
+
+abline(a = 0, b = 0, lty = 2)          # Set dash line at 0 for comparison.
+```
+
+In an ideal situation, the smoothed curve would be flat at the y-intercept of 0. However, our model residuals indicate that we are experiencing some heteroskedasticity--our variance is not constant. As such, while our model is able to explain variations in the dependent variable well overall,  we also tend to overestimate *mpg* at certain levels (rememeber that residuals = actual - prediction, so paired values below the 0 line in the above plot indicates overestimation).
+
+What else could we do to achieve an unbiased while maintaining statistical significance obtained in the previous model results?
+
+# 5. Next Steps
+
+Further lessons will discuss how to improve model performance, such as including more variables and applying logarithmic functions, as well as plotting multiple graphs on a grid.
+
+```{r ns, echo = FALSE, warning = FALSE, message = FALSE}
+library(ggplot2); library(gridExtra)
+source('C:/Users/crispychicken/Documents/MEGA/Personal/Scripts/R/diagnoser/R/cdiagnose.R')
+
+cdiagnose(mymodel)
+```
+
+*End of Document*

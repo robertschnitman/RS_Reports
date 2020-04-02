@@ -1,0 +1,19 @@
+---
+title: "R for Everyone "
+subtitle: "Chapters 4-7 Summary Notesn"
+author: "Robert Schnitman"
+date: "2020-03-18 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+---

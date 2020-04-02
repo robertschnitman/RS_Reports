@@ -1,0 +1,137 @@
+---
+title: "Tukey HSD in R Tutorial"
+author: "Robert Schnitman"
+output: pdf_document
+toc: true
+---
+
+```{r setup, include = FALSE}
+library(knitr); library(gplots)
+```
+
+\newpage
+
+# 1. Introduction
+
+This document illustrates how to conduct ANOVA and a Tukey HSD test in R.
+
+# 2. ANOVA
+**GOAL:** Perform ANOVA on *chickwts*.
+
+**Important functions:** *setnames()*, *aggregate()*, *merge()*, *aov()*, *summary()*, *plotmeans()*, *TukeyHSD()*
+
+First, we need to load the *gplots* library into R. Loading all the libraries that we may use at the beginning is good practice, as sometimes we need libraries earlier than we initially expect.
+
+```{r q1setup1, eval = FALSE}
+library(gplots) # if not already installed, type install.packages('gplots')
+```
+
+Next, we need to load the data. The easiest way is with *data()*, which imports datasets pre-loaded into R.
+
+```{r q1setup2}
+data(chickwts)
+```
+
+## 2a. Summary Statistics
+
+We nead the number of occurences; mean of the weights; and standard deviations for each supplement ("feed"). We know that *NROW()* counts the number of rows; *mean()* calculates the average; and *sd()* estimates the standard deviation. To execute these functions by groups (in this case, by feed), we can use *aggregate()*.
+
+
+```{r q1a2}
+sum_stats <- aggregate(weight ~ feed, chickwts, 
+                       function(x) c(obs = NROW(x), mean = mean(x), sd = sd(x)))
+
+sum_stats
+```
+
+The function *aggregate()* computes a specific function on a dataset--in this particular example, we use *NROW*, *mean*, and *sd* to calculate the number of observations, mena, and standard deviation, respectively, of the chick weights by type of feed. The formula *weight ~ feed* is interpreted as "compute a function on weight BY feed."
+
+\newpage
+
+## 2b. ANOVA
+
+To estimate ANOVA, we need *aov()*.
+
+```{r q1b1}
+chickwts_anova <- aov(data = chickwts, formula = weight ~ feed)
+summary(chickwts_anova)
+```
+
+What does the p-value signify? Can we reject the null hypothesis that the feed type is irrelevant in determining a chick's weight? The p-value signifies the probability of comitting a Type I Error (i.e., a false positive). Because p < 0.05 (a conventional rule), we can reject the null hypothesis: the type of feed matters in influencing weight.
+
+
+## 2c. Confidence Intervals
+
+We need the *gplots* library, which we already loaded into R earlier, and *plotmeans()*.
+
+```{r q1c1}
+with(chickwts, plotmeans(weight ~ feed))
+  # with() allows us to specify a dataset we want to work with.
+  #   In this way, we don't have to type "chickwts$" repeatedly.
+
+```
+
+Which groups overlap? Based on the plot, *horsebean* overlaps with *linseed*; *meatmeal* overlaps with all groups except *horsebean*; *linseed* overlaps with *soybean* and *horsebean*; and *sunflower* overlaps with *casein* and *meatmeal*.
+
+
+## 2d. Tukey HSD
+We need *TukeyHSD()*, which we apply over our ANOVA results.
+
+```{r q1d}
+TukeyHSD(chickwts_anova)
+
+```
+
+Recall that each of the contrasts is a t-test. Which groups had statistically significant differences? How do you know? What can we say from these results?
+
+\newpage
+
+# 3. Two-way ANOVA
+**GOAL:** Perform Two-way ANOVA on *CO2*.
+
+**METHOD**:  
+  1. *uptake* is the response variable.  
+  2. **Treatment * Type** are the factors.  
+  3. *aov()*, *TukeyHSD()*, and *interaction.plot()* are to be used (as stated in the assignment).  
+
+**Important functions:** *table()*, *aov()*, *summary()*, *plotmeans()*, *interaction.plot()*
+
+Load the following dataset:
+```{r q2setup1}
+data(CO2)
+```
+
+## 3a. Treatment vs. Type
+
+Let's generate a table comparing *Treatment* against *Type* (column against row). We thus need *with()* to sepecify our working dataset and *table()* for the actual table.
+
+```{r 2a1}
+with(CO2, table(Type, Treatment)) # we need Type as the row and Treatment as the column.
+```
+
+Is the design balanced or unbalanced? Why?
+
+## 3b. Main and Interaction Effects
+
+We need a Two-way ANOVA with factors.
+
+```{r 2b1}
+CO2_anova <- aov(uptake ~ Treatment*Type, data = CO2)
+summary(CO2_anova)
+
+```
+
+What are the statistically significant results? Based on what significance level?
+
+\newpage
+
+## 3c. Interaction Effects, continued. 
+
+We need to know the statistically significant differences between each Treatment-Type combinations. We've done something similar in Question 1d; but now we also need to have a plot of the interactions.
+
+```{r 2c1, fig.height=5, fig.width=7}
+TukeyHSD(CO2_anova)
+with(CO2, interaction.plot(Treatment, Type, uptake))
+```
+
+*End of Document*

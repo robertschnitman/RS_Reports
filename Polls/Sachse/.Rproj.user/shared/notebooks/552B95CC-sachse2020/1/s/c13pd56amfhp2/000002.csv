@@ -1,0 +1,78 @@
+"0","data <- read_csv('sachse2020.csv')"
+"0","kable(data, booktabs = TRUE, caption = 'Data Preview') %>%"
+"0","  footnote(general = 'https://www.cityofsachse.com/365/Election-Results',"
+"0","           footnote_as_chunk = TRUE)"
+"1","<table>
+<caption>Data Preview</caption>
+ <thead>
+  <tr>
+   <th style=""text-align:left;""> candidate </th>
+   <th style=""text-align:right;""> votes_early </th>
+   <th style=""text-align:right;""> votes_election_day </th>
+   <th style=""text-align:right;""> votes_total </th>
+   <th style=""text-align:right;""> votes_total_pct </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style=""text-align:left;""> Chance Lindsey </td>
+   <td style=""text-align:right;""> 179 </td>
+   <td style=""text-align:right;""> 88 </td>
+   <td style=""text-align:right;""> 267 </td>
+   <td style=""text-align:right;""> 44.13 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> Bob Yarborough </td>
+   <td style=""text-align:right;""> 8 </td>
+   <td style=""text-align:right;""> 10 </td>
+   <td style=""text-align:right;""> 18 </td>
+   <td style=""text-align:right;""> 2.98 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> Patrick Cook </td>
+   <td style=""text-align:right;""> 26 </td>
+   <td style=""text-align:right;""> 9 </td>
+   <td style=""text-align:right;""> 35 </td>
+   <td style=""text-align:right;""> 5.79 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> Melvin M. Randle Jr. </td>
+   <td style=""text-align:right;""> 16 </td>
+   <td style=""text-align:right;""> 14 </td>
+   <td style=""text-align:right;""> 30 </td>
+   <td style=""text-align:right;""> 4.96 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> Drew Shubzda </td>
+   <td style=""text-align:right;""> 108 </td>
+   <td style=""text-align:right;""> 98 </td>
+   <td style=""text-align:right;""> 206 </td>
+   <td style=""text-align:right;""> 34.05 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> George ""Butch"" Kemper </td>
+   <td style=""text-align:right;""> 12 </td>
+   <td style=""text-align:right;""> 3 </td>
+   <td style=""text-align:right;""> 15 </td>
+   <td style=""text-align:right;""> 2.48 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> Debbie Stout </td>
+   <td style=""text-align:right;""> 18 </td>
+   <td style=""text-align:right;""> 12 </td>
+   <td style=""text-align:right;""> 30 </td>
+   <td style=""text-align:right;""> 4.96 </td>
+  </tr>
+  <tr>
+   <td style=""text-align:left;""> Kirk Wood </td>
+   <td style=""text-align:right;""> 2 </td>
+   <td style=""text-align:right;""> 2 </td>
+   <td style=""text-align:right;""> 4 </td>
+   <td style=""text-align:right;""> 0.66 </td>
+  </tr>
+</tbody>
+<tfoot><tr><td style=""padding: 0; border: 0;"" colspan=""100%"">
+<span style=""font-style: italic;"">Note: </span> <sup></sup> https://www.cityofsachse.com/365/Election-Results</td></tr></tfoot>
+</table>"
+"1","
+"

@@ -1,0 +1,200 @@
+---
+title: \vspace{3in}Okun's Law
+subtitle: Summary and Demonstration in R
+author: "Robert Schnitman"
+date: "January 10, 2020"
+output:
+ pdf_document:
+   toc: true
+   number_sections: true
+   includes:
+     before_body: tex\beforebody.tex
+---
+
+\newpage
+
+# Introduction
+
+\pagenumbering{arabic} 
+
+The purpose of this document is to summarize and demonstrate Okun's Law in the R programming language.
+
+# Definition
+
+Named after Arthur Melvin Okun, Okun's Law states that there is an inverse relationship between the unemployment rate and an economy's productivity.[^1]
+
+[^1]:Prachowny 1993. https://ideas.repec.org/a/tpr/restat/v75y1993i2p331-36.html
+
+# Demonstration
+
+## Loading Libraries
+
+First, we'll load two libraries that will be used to display our data and plot the unemployment rate (UR) against Real GDP, Pecent Change from Last Year (RGDP).
+
+```{r setup, message=FALSE}
+library(knitr)      # For tables.
+library(kableExtra) # For extending tables.
+library(ggplot2)    # For graphing.
+library(stargazer)  # For regression tables.
+library(magrittr)   # For chaining functions.
+```
+
+## Importing Data
+
+Second, we'll import our data downloaded from Federal Reserve's FRED (Federal Reserve Economic Data) database.[^2]
+
+[^2]: https://fred.stlouisfed.org/series/UNRATE and https://fred.stlouisfed.org/series/GDPC1
+
+```{r data}
+# 1. Import the unemployment rate.
+ur <- read.csv('UR.csv', stringsAsFactors = FALSE)
+
+# 2. Import the GDP LY (last year) percent change data.
+gdp <- read.csv('GDP_DELTA.csv', stringsAsFactors = FALSE)
+
+# 3. Merge our data.
+ur_gdp <- merge(ur, gdp, by = 'DATE')
+```
+
+\newpage
+
+```{r data2}
+# 4. Preview our data.
+kable(head(ur_gdp, 5), booktabs = TRUE, caption = 'FRED Data Preview',
+      col.names = c('Date', 'Unemployment Rate', 'Real GDP LY Percent Change')) %>%
+  kable_styling(full_width = TRUE, latex_options = "hold_position") %>%
+  footnote(general = 'Data are end-of-period and seasonally adjusted. Only the first few years are shown.',
+           footnote_as_chunk = TRUE)
+```
+
+Table 1 presents the first few years of UR and RGDP data. W ewill use this dataset to plot the latter against the former to showcase Okun's Law.
+
+## Plotting the Data
+
+```{r plot, fig.align = 'center', results = 'asis', warning = FALSE}
+### Figure 1.
+ggplot(ur_gdp) + 
+  aes(y = UNRATE, x = GDPC1_PC1) + 
+  geom_point(col = 'salmon', alpha = 0.7) + 
+  geom_smooth(method = 'lm', col = 'cyan4', se = FALSE, alpha = 0.7) + 
+  labs(y = 'Unemployment Rate',
+       x = 'Real Gross Domestic Product, Percent Change from Last Year',
+       title = 'Fig. 1 - Okun\'s Law Demonstration, 1948-2018',
+       caption = 'Note. Data are end-of-period, seasonally adjusted values.') +
+  theme_light() + 
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_blank())
+```
+
+```{r plot2, warning = FALSE}
+### Figure 2.
+ggplot(ur_gdp) + 
+  aes(y = log(UNRATE), x = log(GDPC1_PC1)) + 
+  geom_point(col = 'salmon', alpha = 0.7) + 
+  geom_smooth(method = 'lm', col = 'cyan4', se = FALSE, alpha = 0.7) + 
+  labs(y = 'log(Unemployment Rate)',
+       x = 'log(Real Gross Domestic Product, Percent Change from Last Year)',
+       title = 'Fig. 2 - Okun\'s Law Demonstration, 1948-2018, Log-transformed',
+       caption = 'Note. Data are end-of-period, seasonally adjusted values.') +
+  theme_light() + 
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_blank())
+```
+
+## Regression Results
+
+Let's estimate regressions for more details on how UR relates to RGDP.
+```{r regs, results = 'asis', warning = FALSE}
+m1 <- lm(UNRATE ~ GDPC1_PC1, ur_gdp)           # Levels
+m2 <- lm(log(UNRATE) ~ log(GDPC1_PC1), ur_gdp) # Log-transformations
+
+stargazer(m1, m2,
+          type = 'latex',
+          dep.var.labels = c('Unemployment Rate', 'log(Unemployment Rate)'), 
+          covariate.labels = c('Real GDP LY \\% Change', 'log(Real GDP LY \\% Change)'),
+          title = 'Unemployment Rate vs. Real GDP')
+  
+```
+
+Based on Table 2, the untransformed model performed better than the log-transformed counterpart (Adjusted R^2 of 12.9% vs. 6.8%, respectively). Both show a negative, linear relationship between the unemployment rate and GDP.
+
+\newpage
+
+## Diagnostics
+
+To further check the performance of our models, let us examine the residuals from both models.
+
+```{r diag1, warning = FALSE, message = FALSE}
+### Create fitted/predicted values and residuals
+fitres1 <- data.frame(fit1 = predict(m1), res1 = resid(m1)) %>%
+  transform(res_pct1 = res1/(fit1 + res1)) # Residuals %
+
+fitres2 <- data.frame(fit2 = predict(m2), res2 = resid(m2)) %>%
+  transform(res_pct2 = res2/(fit2 + res2)) # Residuals %
+```
+
+```{r diag2a, message = FALSE}
+### Residual Distributions
+ggplot(fitres1) + 
+  aes(x = res_pct1*100) + 
+  geom_histogram(fill = 'cyan4', col = 'grey', alpha = 0.7) + 
+  labs(y = 'Count',
+       x = 'Residuals, %',
+       title = 'Fig. 3 - Model 1 Residuals') + 
+  theme_light() + 
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_blank())
+```
+
+```{r diag2b, message = FALSE}
+ggplot(fitres2) + 
+  aes(x = res_pct2*100) + 
+  geom_histogram(fill = 'salmon', col = 'grey', alpha = 0.7) + 
+  labs(y = 'Count',
+       x = 'Residuals, %',
+       title = 'Fig. 4 - Model 2 Residuals') +   
+  theme_light() + 
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_blank())
+```
+
+```{r diag3a}
+### Predicted Values vs. Residuals
+ggplot(fitres1) + 
+  aes(x = fit1, y = res_pct1*100) + 
+  geom_point(col = 'cyan4', alpha = 0.7) + 
+  geom_smooth(method = 'lm', col = 'salmon', alpha = 0.7, se = FALSE) + 
+  labs(y = 'Predicted Values',
+       x = 'Residuals, %',
+       title = 'Fig. 5 - Model 1 Predicted Values vs. Residuals') +   
+  theme_light() + 
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_blank())
+```
+
+```{r diag3b}
+ggplot(fitres2) + 
+  aes(x = fit2, y = res_pct2*100) + 
+  geom_point(col = 'cyan4', alpha = 0.7) + 
+  geom_smooth(method = 'lm', col = 'salmon', alpha = 0.7, se = FALSE) + 
+  labs(y = 'Predicted Values',
+       x = 'Residuals, %',
+       title = 'Fig. 6 - Model 2 Predicted Values vs. Residuals') +   
+  theme_light() + 
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.x = element_blank())
+
+```
+
+\newpage
+
+# Conclusion
+
+Based on Figures 1 and 2, as well as the regression results in Table 2, Okun's Law generally still holds to this day: one should note the overall declining trend despite the relatively low Adjusted R^2 values.
+
+# References
+Prachowny, Martin F J, 1993. "Okun's Law: Theoretical Foundations and Revised Estimates," The Review of Economics and Statistics, MIT Press, vol. 75(2), pages 331-336, May. 
+
+U.S. Bureau of Economic Analysis, Real Gross Domestic Product [GDPC1], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/GDPC1, January 10, 2020.
+
+U.S. Bureau of Labor Statistics, Unemployment Rate [UNRATE], retrieved from FRED, Federal Reserve Bank of St. Louis; https://fred.stlouisfed.org/series/UNRATE, January 10, 2020. 

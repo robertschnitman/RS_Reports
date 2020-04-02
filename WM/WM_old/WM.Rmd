@@ -1,0 +1,81 @@
+
+---
+title: "Elementary Web Mining Using rvest and bankrates.com"
+author: "Robert Schnitman"
+date: "November 26, 2019"
+output: pdf_document
+---
+
+```{r setup1, results = 'hide'}
+suppressMessages(lapply(c('tidyverse', 'magrittr', 'knitr', 'kableExtra', 'rvest'),
+                        function(x) library(x, character.only = TRUE)))
+```
+
+```{r data}
+links <- data.frame(category = c('Checking Accounts', 'Savings', 'Money Moarket'),
+                    url = c('https://www.bankrate.com/banking/checking/
+                            best-checking-accounts/',
+                            'https://www.bankrate.com/banking/savings/rates/',
+                            'https://www.bankrate.com/banking/money-market/rates/'),
+                    stringsAsFactors = FALSE)
+
+```
+
+```{r data1, echo = FALSE}
+links <- data.frame(category = c('Checking Accounts', 'Savings', 'Money Moarket'),
+                    url = c('https://www.bankrate.com/banking/checking/best-checking-accounts/',
+                            'https://www.bankrate.com/banking/savings/rates/',
+                            'https://www.bankrate.com/banking/money-market/rates/'),
+                    stringsAsFactors = FALSE)
+
+```
+
+```{r functions}
+read_html_table <- function(url) {
+
+  
+  read_html(url) %>%
+    html_nodes('table') %>%
+    html_table() %>%
+    as.data.frame() %>%
+    map_df(~ gsub('\\*', '', .))
+  
+} # Output: list
+
+mykable <- function(df, ...) {
+  
+  kable(df, ..., booktabs = TRUE) %>%
+    kable_styling(full_width = TRUE)
+  
+}
+
+```
+
+
+```{r tables, results = 'asis'}
+### Test with only the first link
+
+col_names <- c('Bank', 'Monthly Fee', 'APY', 
+               'Minimum Opening Balance', 'Minimum Balance to Avoid Fees')
+
+read_html_table(links$url[[1]]) %>%
+  mykable(caption = links$category[[1]], col.names = col_names) %>%
+  collapse_rows(1, valign = 'top')
+
+```
+
+```{r future, include = FALSE}
+### FOR THE FUTURE
+#my_tables <- as_mapper(~ {
+  
+  #read_html_table(.x) %>%
+   # mykable(caption = .y#, 
+            #col.names = col_names
+  #          ) %>%
+ #   collapse_rows(1, valign = 'top')
+  
+  
+#})
+
+# FOR THE FUTURE: with(links, map2(url, category, my_tables))
+```

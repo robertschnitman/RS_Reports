@@ -1,0 +1,52 @@
+---
+title: "Econometrics & Statistical Programming Tutor"
+author: Robert Schnitman
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+\pagenumbering{gobble}
+
+## About Me
+
+I am an alumnus of the Master of Science in Economics degree program at The University of Texas at Dallas, which is where I also have received my Bachelor of Science in Economics degree. My graduate concentration was applied econometrics. I have worked for JCPenney and Collin College, applying regression methods and writing functions in R. For **$25 per hour** (group rates $20 per hour--all hourly rates negotiable), I can tutor in the following subjects in person or online:
+
+\begin{itemize}
+
+\item \textbf{Quantitative Methods:} Econometrics, Statistics 
+
+\item \textbf{Statistical Computing:} R, Stata 
+
+\item \textbf{Writing:} Research, Proofreading
+
+\end{itemize}
+
+I look forward to helping you!
+
+## Contact Info
+214-676-2376  
+robertschnitman@gmail.com  
+https://www.wyzant.com/Tutors/rsecon  
+
+## Sample Code - Model Comparisons
+```{r, fig.height = 2, fig.width = 5, fig.align = 'center'}
+split(diamonds, diamonds$color) %>%
+  map_df(~ summary(lm(price ~ carat + depth, .x))$adj.r.squared) %>%
+  gather(Category, Value, 1:NCOL(.)) %>%
+  ggplot(aes(x = Category, y = Value, fill = Category)) + 
+    geom_bar(stat = 'identity') + 
+    scale_fill_brewer(palette = 'Blues') +
+    theme_light() + 
+    theme(legend.position    = 'none',
+          panel.grid.minor   = element_blank(),
+          panel.grid.major.x = element_blank()) + 
+    labs(y = 'Adjusted R-Square', x = 'Color Category')
+```
+
+
+
+
+

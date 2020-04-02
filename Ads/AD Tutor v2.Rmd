@@ -1,0 +1,73 @@
+---
+name: Robert Schnitman
+position: Statistician and Tutor
+phone: 214-676-2376
+email: "robertschnitman@gmail.com"
+#www: "sites.google.com/view/robertschnitman"
+github: robertschnitman
+linkedin: rschnitman
+aboutme: "Experienced Statistical Consultant with a demonstrated history of research and analysis. Skilled in R, Stata, and econometrics. Strong research professional with a master's degree in economics from The University of Texas at Dallas. For consulting needs, my rate is **$30 per hour**. For **$25 per hour** (group rates $20 per hour--all hourly rates negotiable), I can tutor in R, Stata, statistics, and econometrics in person or online."
+output: vitae::twentyseconds
+---
+
+```{r, include = FALSE}
+libs <- c('tidyverse', 'magrittr')
+
+for (i in libs) {
+  
+  if (!require(i, character.only = TRUE)) {
+    
+    install.packages(i)
+    library(i, character.only = TRUE)
+    
+  }
+  
+}
+```
+
+# Education
+*The University of Texas at Dallas*  
+2015 M.S. Economics, 3.704 GPA  
+2015 G.C. Economic & Demographic Data Analysis  
+2014 B.S.	Economics  
+
+# Experience
+## Statistical Consultant | Self-employed
+*2016 January – Present*
+
+\begin{itemize}
+
+\item Promoted evidence-based research by writing statistical reports grounded on economic, agricultural, and public health data.
+
+\item Restructured datasets of 10,000+ observations and 100+ variables to ensure the quantitative methods generated valid estimations.
+
+\item Created scatter diagrams and computed regression models to reveal trends between firm revenue and customer demographics.
+
+\item Developed programming scripts in R, Stata, and SPSS to facilitate reproducible results for social scientists.
+
+\item Tutored 200+ hours on WyzAnt in R, Stata, statistics, and econometrics.
+
+\end{itemize}
+
+# Sample Code - Model Comparisons
+```{r, fig.height = 2, fig.width = 5, fig.align = 'center'}
+diamonds %>%
+  split(.$color) %>%
+  map(~ lm(price ~ carat + depth, .x)) %>% 
+  map(summary) %>%
+  map_df('adj.r.squared') %>%
+  gather(Category, Value, 1:NCOL(.)) %>%
+  ggplot(aes(x = Category, y = Value, fill = Category)) + 
+    geom_bar(stat = 'identity') + 
+    scale_fill_brewer(palette = 'Blues') +
+    theme_light() + 
+    theme(legend.position    = 'none',
+          panel.grid.minor   = element_blank(),
+          panel.grid.major.x = element_blank()) + 
+    labs(y = 'Adjusted R-Square', x = 'Color Category')
+```
+
+
+
+
+

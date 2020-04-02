@@ -1,0 +1,123 @@
+---
+title: "Iterative Generation of Frequency Distributions"
+author: "Robert Schnitman"
+date: "November 21, 2019"
+output: pdf_document
+---
+
+```{r setup, echo = FALSE}
+link <- 'https://github.com/robertschnitman/RS_Reports/blob/master/FD/FD.rmd'
+```
+
+The purpose of this document is to demonstrate the production of a multi-paged report of frequency distributions via R Markdown. What follows is a cross-tabulation between the color and quality of diamonds by their depth level. The data used is `diamonds` from the R library `ggplot2`. 
+
+At a high level, we perform the following to generate the tables in this report:
+
+1. Load table-styling and data management libraries (`knitr`, `kableExtra`, `tidyverse`, and `magrittr`). This step assumes that `tinytex` has been installed in RStudio and that `tinytex::install_tinytex()` has been executed.
+
+2. Create a function that combines the counts and row-wise percentages in their own dataset (more specifically, a `data frame`).
+
+3. Write a function that generalizes the preferred table style: counts and row-wise percentages for each row-group, along with computed means of the quality level.
+
+4. Apply steps 2 and 3 above for each depth level via a `for` loop (i.e. "for each depth level, generate the cross-tabulation between the diamonds' color and quality category").
+
+The source code is located at `r link`.
+
+```{r libs, echo = FALSE, results ='hide', warning = FALSE, messages = FALSE}
+# install.packages('tinytex')
+# tinytex::install_tinytex()
+library(knitr)
+library(kableExtra)
+suppressMessages(library(tidyverse))
+suppressMessages(library(magrittr))
+```
+
+```{r fun_mt, echo = FALSE}
+main_table <- function(...) {
+  
+ ### Check if the number of variables is not 2.
+ ##  For now, cross-tabs between two variables is only possible at this point.
+ dots <- list(...)
+ 
+ if (length(dots) != 2) {
+   
+   stop(paste0('This function assumes two variables. Number of variables detected is ', 
+               length(dots), 
+               '.')) 
+   
+ }
+  
+ ### Generate the counts and means.
+ freq <- table(...)
+  
+ freq_df <- as.data.frame(freq) %>%
+   spread(NCOL(.) - 1, NCOL(.)) %>%
+   mutate(Total = apply(.[, 2:NCOL(.)], 1, sum),
+          Mean  = apply(.[, 2:NCOL(.)], 1, function(x) round(sum(x*1:5)/sum(x), 2)))
+ 
+ ### Generate the ROWWISE percentages.
+ prop_df <- freq_df
+ prop_df[, 2:NCOL(prop_df)] <- prop_df[, 2:NCOL(prop_df)]/prop_df$Total
+ 
+ ### Convert freq_df and prop_df into characters so that 
+ ##  we can combine them into the same data frame.
+ freq_df %<>% # Format the counts so that they are of the NNN,NNN format.
+  format(., big.mark = ',', scientific = FALSE) %>%
+  map_df(as.character)
+ 
+prop_df[, 2:(NCOL(prop_df))] %<>% 
+    map_df(~ paste0(round(.x*100), '%'))
+ 
+ prop_df %<>% 
+   map_df(as.character) %>%
+   mutate(Mean = '')
+
+ ### Combine freq_df and prop_df
+ combine <- map_df(1:NROW(freq_df), ~ rbind(freq_df[.x, ], prop_df[.x, ]))
+ 
+ combine
+  
+}
+```
+
+```{r fun_mk, warnings=FALSE, echo = FALSE}
+main_knit <- function(mt, caption, col.names = NA) {
+ 
+  mt %>%
+    kable('latex', 
+          booktabs = TRUE, 
+          caption = caption, 
+          linesep = '',
+          col.names = col.names) %>%
+    kable_styling(full_width = TRUE) %>%
+    collapse_rows(1, valign = "top", latex_hline = "major")
+    
+  
+}
+```
+
+```{r tables1, results = 'asis', echo = FALSE}
+names_clarity <- c('Color',
+                   '1 = Fair',
+                   '2 = Good',
+                   '3 = Very Good',
+                   '4 = Premium',
+                   '5 = Ideal',
+                   'Total',
+                   'Mean Quality Level')
+
+clarities <- unique(diamonds$clarity)
+
+for (i in 1:length(clarities)) {
+  
+  ss <- subset(diamonds, clarity == clarities[i])
+  
+  mt <- with(ss, main_table(color, cut))
+  
+  main_knit(mt, paste0('Clarity: ', clarities[i]), col.names = names_clarity) %>%
+    print()
+  
+  #cat('\\newpage')
+  
+}
+```

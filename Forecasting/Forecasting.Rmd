@@ -1,0 +1,46 @@
+---
+title: "Elementary Forecasting with the forecast R Library and AirPassengers Dataset"
+author: "Robert Schnitman"
+date: "November 27, 2019"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# 1. Setup
+```{r setup1, results = 'hide'}
+suppressMessages(lapply(c('tidyverse', 'magrittr', 'knitr', 'kableExtra', 'forecast'),
+                        function(x) library(x, character.only = TRUE)))
+```
+
+# 2. Data
+``` {r data}
+AirPassengers # R dataset: Monthly International Airline Passengers, 1949-1960
+```
+
+# 3. Forecast
+```{r forecast, warning = FALSE, message = FALSE, results='hide'}
+fcast       <- forecast(AirPassengers, h = 12*10)
+fcast_means <- fcast$mean # Forecasting 10 years.
+
+fcasts_matrix           <- round(matrix(fcast_means, 10, 12))
+colnames(fcasts_matrix) <- month.abb
+rownames(fcasts_matrix) <- 1961:1970
+
+kable(fcasts_matrix, booktabs = TRUE) %>%
+  kable_styling(full_width = TRUE)
+
+```
+
+### Table 1. Monthly Forecasts of International Airline Passengers, 1961-1970
+```{r echo = FALSE}
+kable(fcasts_matrix, booktabs = TRUE) %>%
+  kable_styling(full_width = TRUE)
+```
+
+```{r gph}
+autoplot(fcast, geom = "line", alpha = 0.7) + 
+  theme_light() + 
+  theme(#panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+```

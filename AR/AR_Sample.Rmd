@@ -1,0 +1,566 @@
+---
+title: \vspace{3in}Accounting Report 2019 Example Report with Randomized Numbers
+author:   Robert Schnitman
+date: '`r gsub("0[0-9],", paste0(substr(format(Sys.Date(), "%B %d, %Y"), 11, 11), ","), format(Sys.Date(), "%B %d, %Y"))`'
+output:
+ pdf_document:
+   toc: true
+   includes:
+     before_body: tex\ar19_beforebody.tex
+     #in_header: ar19_hf.tex
+     
+ header-includes:
+   - \usepackage{fancyhdr}
+   - \usepackage{lastpage}
+   - \usepackage{xcolor}
+---
+
+
+
+\newpage
+
+```{r parameters, include = FALSE}
+##### === EDIT PARAMETERS AS NECESSARY === #####
+
+#### SET YEAR AND FILE NAME####
+yr <- 2019
+
+myfile <- 'transactions4.xls'
+
+#### SET INCOME & EXPENSE GOALS
+plan_inc <- 36000/12 # Monthly livable income goal
+plan_exp <- (plan_inc/3) # Ideal expenses allocation.
+
+#### LOAD LIBRARIES ####
+#libs <- c('readxl', 'tidyr', 'knitr', 'ggplot2', 'kableExtra', 'lattice')
+libs <- c('readxl', 'tidyverse', 'knitr', 
+          'kableExtra', 'lattice', 'grid', 
+          'gridExtra', 'magrittr')
+lapply(libs, library, character.only = TRUE)
+
+# SciencesPo was depcrecated...
+
+```
+
+```{r SETUP, include = FALSE}
+##### === SET UP === #####
+set.seed(1)
+#### SET WORKING DIRECTORY ####
+setwd("~/MEGA/Personal/Money/")
+
+#### READ DATA ####
+  
+for (i in c('income', 'expenses', 'investments')) {
+  
+  assign(paste(substr(i, 1, 3), 'df', sep = '.'), 
+         subset(read_excel(myfile, sheet = i), year == yr))
+  
+}
+
+map_rand <- function(x) map_df(x, ~ .x*rnorm(length(.x)))
+
+inc.df[, 16:21] %<>% map_rand()
+exp.df[, 9:15] %<>% map_rand()
+inv.df[, 8] %<>% map_rand()
+  
+```
+
+```{r list_setup, echo = FALSE}
+
+
+### General Functions.
+
+## Using "colnames" due to some objects being matrices instead of data frames.
+not_date  <- function(data) !grepl('date|month', colnames(data), ignore.case = TRUE)
+not_total <- function(data) !grepl('total', colnames(data), ignore.case = TRUE)
+
+mapc <- function(f, x, ...) apply(x, 2, f, ...)
+mapr <- function(f, x, ...) apply(x, 1, f, ...)
+
+# nd = "Not Date" (calculate everything except the "Total" column)
+mapr_dt <- function(data, f) apply(data[, not_date(data)], 1, f, na.rm = TRUE) 
+
+# nt = "Not Total" (calculate everything except the "Total" column)
+mapr_nt <- function(data, f) apply(data[, not_total(data)], 1, f, na.rm = TRUE) 
+
+mapnum <- function(f, x, ...) {
+  
+  if (typeof(x) != 'list') {
+    
+    x <- as.data.frame(x)
+    
+  }
+  
+  rapply(x, f, classes = 'numeric', na.rm = TRUE)
+  
+  
+}
+
+
+### Reporting Functions
+mark.list <- list(big.mark = ',', small.mark = '.') # For kable() 
+
+## for ordering month as first.
+# This was created before the note_date() function. Kept for legacy purposes.
+not_month <- function(df) {names(df)[!grepl('month|Month', names(df))]} 
+
+#NAto0df   <- function(df) {as.data.frame(replace(x = df, list = is.na(df), 0))} # For easier calculations.
+
+NAto0df    <- function(x) purrr::map_df(x, ~ replace(.x, is.na(.x), 0)) # For type consistency.
+
+mykable   <- function(df, digits = 2, format.args = mark.list, align = 'r', ...) { # custom kable specifications.
+  
+  kable(df, 
+        digits      = digits, 
+        format.args = format.args, 
+        align       = align, 
+        booktabs    = TRUE, 
+        linesep     = '',
+        ...)
+  
+}
+
+myfootnote <- function(..., note) {
+  
+      footnote(...,
+               general_title     = 'Note.',
+               general           = note,
+               title_format      = 'italic',
+               footnote_as_chunk = TRUE)
+  
+}
+
+report <- function(x, plan_num, except = FALSE, ...) { # Main reporting function
+  
+  grp.t.df <- x # There originally was a lot of repetitive code. To avoid ruining the structure, we make this assignment.
+  
+  grp.t.df$Total <- apply(grp.t.df[, -1], 1, sum, na.rm = TRUE) # Transactional dataset is row-oriented (remove date from calculation).
+  
+  grp.t_sum.m        <- apply(grp.t.df[, 2:NCOL(grp.t.df)], 
+                              2, 
+                              function(x) sum(x, na.rm = TRUE)) # Get the overall totals
+  grp.t_sum.df       <- as.data.frame(t(grp.t_sum.m)) # For kable()
+  grp.t_sum.df$Month <- 'TOTAL'
+  grp.t_sum.df       <- grp.t_sum.df[, c('Month', not_month(grp.t_sum.df))]
+  
+  grp.t_gt.df <- rbind(grp.t.df, grp.t_sum.df)
+  
+  plan_mon <- rep(plan_num, NROW(grp.t_gt.df) - 1)
+  
+  plan <- c(plan_mon, sum(plan_mon)) # To compare whether we are making the goal.
+  
+  grp.t_gt.df <- transform(grp.t_gt.df, 
+                           Plan = plan,
+                           Plan_NET = Total - plan,
+                           Plan_PCT = (Total - plan)/plan*100)
+  
+  if (except == FALSE) {
+    
+    mykable(NAto0df(grp.t_gt.df), ...)
+    
+  } else {
+    
+    pre <- NAto0df(grp.t_gt.df)
+    
+    mykable(t(pre))
+    
+  }
+  
+  
+  
+  
+}
+numround <- function(x) round(as.numeric(x), 2)
+
+current_months <- function(x, type) {
+ 
+  if (!type %in% 1:2) {
+    
+    stop('Type must be 1 (length) or 2 (NCOL - 1).')
+    
+  } else if (type == 1) {
+    
+    month.name[1:(length(x))]
+    
+  } else {
+    
+    month.name[1:(NCOL(x) - 1)] # -1 to exclude TOTAL.
+    
+    #month.name[-NCOL(x)]
+    
+  }
+  
+} 
+
+
+```
+ 
+
+```{r Summaries, echo = FALSE, warning = FALSE}
+#### Monthlies ####
+  
+### Gross Income ###
+inc_grp.df           <- aggregate(net ~ month + source, inc.df, sum)
+names(inc_grp.df)[3] <- 'atd_inc'
+  
+### Expenses ###
+exp_grp.df           <- aggregate(total ~ month + group, exp.df, sum)
+names(exp_grp.df)[3] <- 'expenses'
+  
+### Net Income ###
+
+## Preparing a proper table of monthly income and expenses
+inc_sum.df <- aggregate(cbind(earnings, fees, taxes, 
+                              pretax_deductions, posttax_deductions, net) ~ month, 
+                        inc.df, 
+                        sum)
+
+names(inc_sum.df)[2:4]              <- c('gross_income', 'freelance_fees', 'w2_taxes')
+names(inc_sum.df)[NCOL(inc_sum.df)] <- 'atd_inc'
+
+exp_sum.df           <- aggregate(total ~ month, exp.df, sum)
+names(exp_sum.df)[2] <- 'expenses'
+    
+inc_exp.df        <- merge(inc_sum.df, exp_sum.df, by = 'month', all.y = TRUE)
+inc_exp.df$inc_op <- with(inc_exp.df, atd_inc - expenses)
+
+    
+### Investment ###
+inv_sum.df           <- aggregate(investment ~ month, inv.df, sum, na.rm = TRUE)
+names(inv_sum.df)[2] <- 'inv'
+
+inv_grp.df           <- aggregate(investment ~ month + source + sub_type, 
+                                  inv.df, 
+                                  sum, na.rm = TRUE)
+
+```
+
+
+# A. Financial Summary (Values Randomized)
+
+\pagenumbering{arabic} 
+
+```{r UPSHOT_setup, echo = FALSE}
+   options(knitr.kable.NA = '-')
+
+upshot.col <- c('Month', 
+                'Gross Income', 
+                'Freelance Fees', 
+                'W2/Contractor Taxes', 
+                'Pre-Tax Deductions',
+                'Post-Tax Deductions',
+                'Take-Home Pay',
+                'After-Income Expenses',
+                'Operating Income', 
+                'Investment Outflow', 
+                'Net Income',
+                'Savings')
+
+##### Preparation #####
+upshot.df         <- merge(inc_exp.df, inv_sum.df, by = 'month', all.x = TRUE)
+upshot.df$ni      <- with(upshot.df, ifelse(is.na(inv), inc_op, inc_op - inv))
+upshot.df$savings <- with(upshot.df, ifelse(is.na(inv), inc_op/2, (inc_op - inv)/2))
+
+##### The Table #####
+#upshot_sum.m        <- apply(upshot.df[, 2:NCOL(upshot.df)], 2, function(x) sum(x, na.rm = TRUE))
+upshot_sum.m        <- mapc(sum, upshot.df[, 2:NCOL(upshot.df)], na.rm = TRUE)
+upshot_sum.df       <- as.data.frame(t(sapply(upshot_sum.m, function(x) ifelse(is.na(x), 0, x))))
+upshot_sum.df$month <- 'TOTAL'
+upshot_sum.df       <- upshot_sum.df[, c('month', not_month(upshot_sum.df))]
+  
+upshot_gt.df        <- rbind(upshot.df, upshot_sum.df)
+
+colnames(upshot_gt.df) <- upshot.col
+
+upshot_gt.df[, 2:NCOL(upshot_gt.df)] <- sapply(upshot_gt.df[, 2:NCOL(upshot_gt.df)], numround)
+
+upshot2 <- t(upshot_gt.df[, 2:NCOL(upshot_gt.df)])
+
+colnames(upshot2) <- c(current_months(upshot2, 2), 'TOTAL')
+                  
+```
+
+## Fig. `r f <- 1; f` - Monthly Performance
+```{r fig_mp, echo = FALSE, fig.align = 'center', warning = FALSE, fig.align = 'center', fig.height = 3.8, message = FALSE}
+## PLOTTING ##
+    
+# Tidying data into a proper form for graphing #
+inc_exp_stack.df        <- stack(inc_exp.df, select = -month)
+inc_exp_stack.df$month  <- rep(inc_exp.df$month, length.out = NROW(inc_exp_stack.df))
+names(inc_exp_stack.df) <- c('amount', 'category', 'month')
+    
+# Graphing by category to track financial performance #
+inc_exp_sub.df <- subset(inc_exp_stack.df, category %in% c('atd_inc', 'expenses', 'inc_op'))
+
+fig1.gph <- ggplot(inc_exp_sub.df, 
+         aes(x = as.integer(month), 
+             #x = month2,
+             colour = category)) +
+  geom_line(aes(y = amount/1000)) +
+  labs(x      = 'Month',
+       y      = 'Amount, $1000s',
+       colour = 'Category') +
+  scale_color_manual(labels = c('Take-Home Pay',
+                                'Expenses',
+                                'Operating Income'),
+                     values = c('cyan4', 'salmon', 'forestgreen')) +
+  scale_x_continuous(breaks = 1:(NCOL(upshot2) - 1),
+                     limits = with(inc.df, c(1, NCOL(upshot2) - 1)))
+      
+# PRINT PLOT #
+fig1.gph + 
+  #theme_minimal() +
+  theme_light() + 
+  #theme_classic() +
+  theme(panel.grid.minor.x = element_blank(),
+        legend.position = 'bottom')
+```
+
+## Fig. `r f <- f + 1; f` - Analysis of Totals
+```{r fig_aot, echo = FALSE, fig.height = 3.8, fig.align = 'center'} 
+aot_dat <- upshot2[, 1:(NCOL(upshot2) - 1)]
+
+upshot_aot <- transform(as.data.frame(upshot2), 
+                        Category = rownames(upshot2),
+                        MEDIAN   = mapr(median, aot_dat, na.rm = TRUE),
+                        MEAN     = mapr(mean, aot_dat, na.rm = TRUE),
+                        SD       = mapr(sd, aot_dat, na.rm = TRUE))
+
+
+
+
+fig_aot2 <- ggplot(upshot_aot, 
+                 aes(y = reorder(Category, TOTAL), 
+                     x = TOTAL/1000
+                     )) +
+  geom_point(stat = 'identity', 
+             col = 'pink3' # magenta3, palegreen3?
+             ) +
+  guides(col = FALSE) +
+  labs(y = '',
+       x = 'Value, $1000s') +
+  #scale_x_discrete(labels = scales::comma
+                   #breaks = seq(0, max(upshot_mm$Value)+10^3, 10^3)) + 
+  theme_light() + 
+  #theme_dark() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+
+fig_aot2
+
+```
+
+
+## Fig. `r f <- f + 1; f` - Central Tendency Distributions
+```{r fig_upm, echo = FALSE, fig.align = 'center', fig.height = 3.6}
+upshot_mm <- gather(upshot_aot[, c('Category', 'MEDIAN', 'MEAN')], Metric, Value, 2:3)
+
+fig_mm <- ggplot(upshot_mm, 
+                 aes(y = reorder(Category, Value), 
+                     x = Value/1000, 
+                     col = Metric)) +
+  geom_point(stat = 'identity') +
+  #geom_bar(stat = 'identity') + # Dots are cleaner.
+  facet_wrap(~ Metric) + 
+  guides(col = FALSE) +
+  labs(y = '',
+       x = 'Value, $1000s') +
+  #scale_x_discrete(labels = scales::comma
+                   #breaks = seq(0, max(upshot_mm$Value)+10^3, 10^3)) + 
+  #scale_color_manual(values = c('green3', 'cyan3')) + # For dark theme.
+  theme_light() + 
+  #theme_dark() + # looks cooler, but uses more ink...
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank())
+
+fig_mm
+
+```
+
+## Table `r n <- 1; n` - Monthly Summary
+```{r UPSHOT_output, echo = FALSE}
+upshot_table <- upshot_aot[, !grepl('Category', names(upshot_aot))]
+
+mykable(upshot_table[, 1:8])
+mykable(upshot_table[, 9:NCOL(upshot_table)])
+
+```
+
+\newpage
+
+# B. Breakdown (Values Randomized)
+
+## Table `r n <- n + 1; n` - Net Earnings
+```{r Income, echo = FALSE}
+    options(knitr.kable.NA = '-')
+
+  ### INCOME ###
+    inc_grp.t.df       <- spread(inc_grp.df, source, atd_inc)
+    inc_grp.t.df$month <- current_months(inc_grp.t.df$month, 1)
+    
+    names(inc_grp.t.df)[1] <- 'Month'
+    
+    report(inc_grp.t.df, plan_inc, align = c('l', rep('r', NCOL(inc_grp.t.df)))) #%>%
+      #column_spec(NCOL(inc_grp.t.df) + 1, border_right = TRUE)
+```
+
+
+## Table `r n <- n + 1; n` - Expenses
+```{r Expenses, echo = FALSE}
+   options(knitr.kable.NA = '-')
+
+    exp_grp.t.df  <- NAto0df(spread(exp_grp.df, group, expenses))
+    
+    #report(exp_grp.t.df[1:6, ], plan_exp, except = TRUE)
+    #report(exp_grp.t.df[7:NROW(exp_grp.t.df), ], plan_exp, except = TRUE)
+    
+    exp_out <- rbind(exp_grp.t.df,
+                     c('TOTAL', 
+                       sapply(exp_grp.t.df[, not_month(exp_grp.t.df)], sum)))
+    
+    exp_out[, 2:NCOL(exp_out)] <- sapply(exp_out[, 2:NCOL(exp_out)], numround)
+    
+    exp_out0 <- transform(exp_out, total = apply(exp_out[, 2:NCOL(exp_out)], 1, sum))
+    
+    plan_expv <- rep(plan_exp, NROW(exp_out0) - 1) %>%
+      c(., sum(.))
+    
+    exp_out1 <- transform(exp_out0,
+                          Plan     = plan_expv,
+                          Plan_NET = total - plan_expv,
+                          Plan_PCT = (((total - plan_expv)/plan_expv)*100))
+    
+    exp_out2 <- t(exp_out1)
+    
+    exp_out3 <- as.data.frame(exp_out2[2:NROW(exp_out2), ])
+    
+    exp_out4 <- apply(exp_out3, 2, numround)
+    
+    rownames(exp_out4) <- rownames(exp_out3)
+    rownames(exp_out4) <- gsub('total', 'Total', rownames(exp_out4))
+    
+    colnames(exp_out4) <- c(current_months(exp_out4, 2), 'TOTAL')
+    
+    #apply(exp_out4[, 1:(NCOL(exp_out4) - 1)], 1, mean, na.rm = TRUE),
+    
+    exp_out5 <- transform(exp_out4,
+                          MEAN   = mapr_nt(exp_out4, mean),
+                          MEDIAN = mapr_nt(exp_out4, median),
+                          SD     = mapr_nt(exp_out4, sd)
+                          )
+    
+    mykable(exp_out5[, 1:8]) %>%
+      row_spec(NROW(exp_out5) - 3, hline_after = TRUE)
+    
+    mykable(exp_out5[, 9:NCOL(exp_out5)]) %>%
+      row_spec(NROW(exp_out5) - 3, hline_after = TRUE)
+    
+```
+
+\newpage
+
+# C. Donations (Values Randomized)
+## Table `r n <- n + 1; n` - Donation Transactions
+```{r Donations1, echo = FALSE}
+donations <- subset(exp.df, group == 'Donations')
+
+donations2 <- donations[, !grepl('year|qua|month', names(donations))]
+
+donations3 <- donations2[, grepl('date|subgroup|desc|place|price|tax|total', names(donations2))]
+
+donations3$subgroup <- gsub('Non-tax deductible', 'Non-TD', donations3$subgroup)
+donations3$subgroup <- gsub('Tax-deductible', 'TD', donations3$subgroup)
+
+donations3[, c('Item_desc', 'place')] %<>%
+  map_df(~ gsub('.*', '[REDACTED]', .x))
+
+mykable(donations3, 
+        col.names = toupper(names(donations3)),
+        align = c('l', rep('r', NCOL(donations3) - 1))) %>%
+  kable_styling(full_width = TRUE) %>%
+  row_spec(1:(NROW(donations3) - 1), hline_after = TRUE) %>%
+  column_spec((NCOL(donations3) - 2):NCOL(donations3), width = '3.5em') %>%
+  footnote(general_title     = 'Notes.',
+           general           = 'TD = Tax Deductible. "Subgroup" is the grouping under the parent group "Donations."',
+           title_format      = 'italic',
+           footnote_as_chunk = TRUE)
+```
+
+## Table `r n <- n + 1; n` - Donation Totals
+```{r Donations2, echo = FALSE}
+donations_agg <- aggregate(cbind(price, tax, total) ~ subgroup, donations3, sum, na.rm = TRUE)
+
+donations_agg2 <- do.call(data.frame, donations_agg)
+
+donations_agg2$subgroup %<>% as.character(.)
+
+donations_agg3 <- rbind(donations_agg2, 
+                        c('TOTAL', mapnum(sum, donations_agg2)))
+
+donations_agg3[ , 2:NCOL(donations_agg3)] %<>% mapc(numround, .)
+
+mykable(donations_agg3, 
+        col.names = c('Type', 'Total Donations', 'Tax', 'Total Payment'),
+        align     = c('l', rep('r', NCOL(donations_agg) - 1))) %>%
+  footnote(general_title     = 'Notes.',
+           general           = 'TD = Tax Deductible; "Subgroup" is the grouping under the parent group "Donations."',
+           title_format      = 'italic',
+           footnote_as_chunk = TRUE,
+           threeparttable    = TRUE)
+```
+
+\newpage
+
+# D. Account Balances (Values Randomized)
+```{r accounts0, echo = FALSE}
+bal <- read.csv('~/MEGA/Personal/Money/balances.csv', stringsAsFactors = FALSE) # Why won't it work without the direct file path? The other imports worked fine?
+
+bal[, 3:NCOL(bal)] %<>% map_rand()
+
+bal2 <- transform(bal, 
+                  Year             = substr(date, 1, 4),              # Need to subset Balances data based on the Year.
+                  Month            = as.numeric(substr(date, 6, 7)),  # Need to get the most recent record for a particular month.
+                  Day              = as.numeric(substr(date, 9, 10)), # Just in case.
+                  stringsAsFactors = FALSE,
+                  Savings          = bal_savavail)
+
+bal2[, c('bal_savavail', 'bal_savcurr')] <- NULL
+
+### Total of All Accounts
+total_accts <- bal2 %>%
+  select(grep('Month|^bal|Savings', names(bal2))) %>%
+  group_by(Month) %>%
+  summarise_all(sum, na.rm = TRUE) %>%
+  mutate(Investments = bal_ira + bal_bro + bal_403b) %>%
+  mutate(`Net Assets` = bal_chk + Investments - bal_cr) %>%
+  mutate(Change = `Net Assets` - lag(`Net Assets`)) %>%
+  mutate(Change_Pct = Change/lag(`Net Assets`))
+
+total_accts2 <- total_accts[, c('Month', 'bal_chk', 'Savings', 'Investments', 'bal_cr', 'Net Assets', 'Change', 'Change_Pct')]
+
+```
+
+```{r accounts_function, echo = FALSE}
+mykable2 <- function(df, align = c('l', rep('r', NCOL(df) - 1)), row.names = FALSE,...) {
+  
+  mykable(df, align = align, row.names = row.names, ...)
+  
+}
+```
+
+
+## Table `r n <- n + 1; n` - Monthly Total Balances
+```{r accounts_total, echo = FALSE}
+bal_names <- c('Month', 'Checking', 'Savings', 'Investments', 'Credit Liability', 'Net Assets', 'Change', 'Change %')
+mykable2(total_accts2, col.names = bal_names)
+```
+
+\  
+
+\  
+
+*End of Document*
+
+`r # cat(rep('\\  \n', 4))`
+
+`r # \vspace{1.75in}\textit{End of Document}`

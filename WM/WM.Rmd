@@ -1,0 +1,65 @@
+---
+title: "Elementary Web Mining Using rvest and bankrates.com"
+author: "Robert Schnitman"
+date: "November 27, 2019"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup1, results = 'hide'}
+suppressMessages(lapply(c('tidyverse', 'magrittr', 'knitr', 'kableExtra', 'rvest'),
+                        function(x) library(x, character.only = TRUE)))
+```
+
+```{r data}
+links <- data.frame(category = c('1-Year CD Rates', '3-Year CD Rates', '5-Year CD Rates'),
+                    url = c('https://www.bankrate.com/banking/cds/best-1-year-cd-rates/',
+                            'https://www.bankrate.com/banking/cds/best-3-year-cd-rates/',
+                            'https://www.bankrate.com/banking/cds/best-5-year-cd-rates/'),
+                    stringsAsFactors = FALSE)
+
+```
+
+```{r functions}
+read_html_table <- function(url) {
+
+  read_html(url) %>%
+    html_nodes('table') %>%
+    html_table() %>%
+    .[[1]] # Use 1st table only: it contains the overall APY and Minimum Deposit columns.
+  
+} # Output: list
+
+mykable <- function(df, ...) {
+  
+  kable(df, ..., booktabs = TRUE) %>%
+    kable_styling(full_width = TRUE)
+  
+}
+
+```
+
+
+```{r tables, results = 'asis'}
+
+for (i in 1:NROW(links)) {
+  
+  with(links, 
+       read_html_table(url[i]) %>%
+         mykable(caption = category[i]) %>%
+         collapse_rows(1, valign = 'top') %>%
+         print()
+         )
+  
+}
+
+### Produces a list
+#with(links, map2(url, category, ~ {
+  
+  #read_html_table(.x) %>%
+    #mykable(caption = .y) %>%
+    #collapse_rows(1, valign = 'top')
+  
+#}))
+```

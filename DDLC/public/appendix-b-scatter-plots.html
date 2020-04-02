@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Appendix B - Scatter Plots | The Narrator and the Noise</title>
+  <meta name="description" content="The focus of this study is to determine the existence and extent of statistical bias towards any of the Doki Doki Literature Club characters with respect to the points distribution of the Poem Minigame." />
+  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Appendix B - Scatter Plots | The Narrator and the Noise" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="The focus of this study is to determine the existence and extent of statistical bias towards any of the Doki Doki Literature Club characters with respect to the points distribution of the Poem Minigame." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Appendix B - Scatter Plots | The Narrator and the Noise" />
+  
+  <meta name="twitter:description" content="The focus of this study is to determine the existence and extent of statistical bias towards any of the Doki Doki Literature Club characters with respect to the points distribution of the Poem Minigame." />
+  
+
+<meta name="author" content="Robert Schnitman" />
+
+
+<meta name="date" content="2020-01-20" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="appendix-a-full-dataset.html"/>
+
+<script src="libs/header-attrs-2.1/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Introduction</a></li>
+<li class="chapter" data-level="1" data-path="methodology.html"><a href="methodology.html"><i class="fa fa-check"></i><b>1</b> Methodology</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="methodology.html"><a href="methodology.html#overview"><i class="fa fa-check"></i><b>1.1</b> Overview</a></li>
+<li class="chapter" data-level="1.2" data-path="methodology.html"><a href="methodology.html#models"><i class="fa fa-check"></i><b>1.2</b> Models</a></li>
+<li class="chapter" data-level="1.3" data-path="methodology.html"><a href="methodology.html#hypotheses"><i class="fa fa-check"></i><b>1.3</b> Hypotheses</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>2</b> Data</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="data.html"><a href="data.html#overview-1"><i class="fa fa-check"></i><b>2.1</b> Overview</a></li>
+<li class="chapter" data-level="2.2" data-path="data.html"><a href="data.html#setup"><i class="fa fa-check"></i><b>2.2</b> Setup</a>
+<ul>
+<li class="chapter" data-level="2.2.1" data-path="data.html"><a href="data.html#r-code-setup"><i class="fa fa-check"></i><b>2.2.1</b> R Code: Setup</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="data.html"><a href="data.html#import"><i class="fa fa-check"></i><b>2.3</b> Import</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="data.html"><a href="data.html#r-code-import"><i class="fa fa-check"></i><b>2.3.1</b> R Code: Import</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>3</b> Results</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="results.html"><a href="results.html#overview-2"><i class="fa fa-check"></i><b>3.1</b> Overview</a></li>
+<li class="chapter" data-level="3.2" data-path="results.html"><a href="results.html#distribution-of-points"><i class="fa fa-check"></i><b>3.2</b> Distribution of Points</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="results.html"><a href="results.html#r-code-distribution-of-points"><i class="fa fa-check"></i><b>3.2.1</b> R Code: Distribution of Points</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="results.html"><a href="results.html#central-tendency-of-the-points"><i class="fa fa-check"></i><b>3.3</b> Central Tendency of the Points</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="results.html"><a href="results.html#r-code-central-tendency-of-the-points"><i class="fa fa-check"></i><b>3.3.1</b> R Code: Central Tendency of the Points</a></li>
+<li class="chapter" data-level="3.3.2" data-path="results.html"><a href="results.html#r-code-central-tendency-of-the-points-bar-graph"><i class="fa fa-check"></i><b>3.3.2</b> R Code: Central Tendency of the Points Bar Graph</a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="results.html"><a href="results.html#anova"><i class="fa fa-check"></i><b>3.4</b> ANOVA</a>
+<ul>
+<li class="chapter" data-level="3.4.1" data-path="results.html"><a href="results.html#r-code-anova-models"><i class="fa fa-check"></i><b>3.4.1</b> R Code: ANOVA Models</a></li>
+</ul></li>
+<li class="chapter" data-level="3.5" data-path="results.html"><a href="results.html#tukey-hsd"><i class="fa fa-check"></i><b>3.5</b> Tukey HSD</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="results.html"><a href="results.html#r-code-tukey-hsd-tests"><i class="fa fa-check"></i><b>3.5.1</b> R Code: Tukey HSD Tests</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="results.html"><a href="results.html#anova-residual-diagnostics"><i class="fa fa-check"></i><b>3.6</b> ANOVA Residual Diagnostics</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="results.html"><a href="results.html#r-code-residuals-setup"><i class="fa fa-check"></i><b>3.6.1</b> R Code: Residuals Setup</a></li>
+<li class="chapter" data-level="3.6.2" data-path="results.html"><a href="results.html#r-code-residuals-distributions"><i class="fa fa-check"></i><b>3.6.2</b> R Code: Residuals Distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="results.html"><a href="results.html#kruskal-wallis-test"><i class="fa fa-check"></i><b>3.7</b> Kruskal-Wallis Test</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="results.html"><a href="results.html#r-code-kruskal-wallis-test"><i class="fa fa-check"></i><b>3.7.1</b> R Code: Kruskal-Wallis Test</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="results.html"><a href="results.html#dunn-test"><i class="fa fa-check"></i><b>3.8</b> Dunn Test</a>
+<ul>
+<li class="chapter" data-level="3.8.1" data-path="results.html"><a href="results.html#r-code-dunn-test"><i class="fa fa-check"></i><b>3.8.1</b> R Code: Dunn Test</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="conclusion.html"><a href="conclusion.html#discussion"><i class="fa fa-check"></i><b>4.1</b> Discussion</a></li>
+<li class="chapter" data-level="4.2" data-path="conclusion.html"><a href="conclusion.html#limitations"><i class="fa fa-check"></i><b>4.2</b> Limitations</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="chapter" data-level="" data-path="appendix-a-full-dataset.html"><a href="appendix-a-full-dataset.html"><i class="fa fa-check"></i>Appendix A - Full Dataset</a>
+<ul>
+<li class="chapter" data-level="" data-path="appendix-a-full-dataset.html"><a href="appendix-a-full-dataset.html#r-code-full-dataset"><i class="fa fa-check"></i>R Code: Full Dataset</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="appendix-b-scatter-plots.html"><a href="appendix-b-scatter-plots.html"><i class="fa fa-check"></i>Appendix B - Scatter Plots</a>
+<ul>
+<li class="chapter" data-level="" data-path="appendix-b-scatter-plots.html"><a href="appendix-b-scatter-plots.html#r-code-scatter-plots"><i class="fa fa-check"></i>R Code: Scatter Plots</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">The Narrator and the Noise</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="appendix-b---scatter-plots" class="section level1 unnumbered" number="">
+<h1>Appendix B - Scatter Plots</h1>
+<div id="r-code-scatter-plots" class="section level3 unnumbered" number="">
+<h3>R Code: Scatter Plots</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="appendix-b-scatter-plots.html#cb15-1"></a>g1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(data) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-2"><a href="appendix-b-scatter-plots.html#cb15-2"></a><span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> Natsuki, <span class="dt">x =</span> Sayori) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-3"><a href="appendix-b-scatter-plots.html#cb15-3"></a><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">col =</span> <span class="st">&#39;salmon&#39;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-4"><a href="appendix-b-scatter-plots.html#cb15-4"></a><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&#39;lm&#39;</span>) <span class="op">+</span></span>
+<span id="cb15-5"><a href="appendix-b-scatter-plots.html#cb15-5"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&#39;Fig. B - Trends in Points between </span></span>
+<span id="cb15-6"><a href="appendix-b-scatter-plots.html#cb15-6"></a><span class="st">Characters&#39;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-7"><a href="appendix-b-scatter-plots.html#cb15-7"></a><span class="st">  </span><span class="kw">theme_light2</span>()</span>
+<span id="cb15-8"><a href="appendix-b-scatter-plots.html#cb15-8"></a></span>
+<span id="cb15-9"><a href="appendix-b-scatter-plots.html#cb15-9"></a>g2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(data) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-10"><a href="appendix-b-scatter-plots.html#cb15-10"></a><span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> Natsuki, <span class="dt">x =</span> Yuri) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-11"><a href="appendix-b-scatter-plots.html#cb15-11"></a><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">col =</span> <span class="st">&#39;cyan4&#39;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-12"><a href="appendix-b-scatter-plots.html#cb15-12"></a><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&#39;lm&#39;</span>) <span class="op">+</span></span>
+<span id="cb15-13"><a href="appendix-b-scatter-plots.html#cb15-13"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&#39;</span><span class="ch">\n</span><span class="st">&#39;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-14"><a href="appendix-b-scatter-plots.html#cb15-14"></a><span class="st">  </span><span class="kw">theme_light2</span>()</span>
+<span id="cb15-15"><a href="appendix-b-scatter-plots.html#cb15-15"></a></span>
+<span id="cb15-16"><a href="appendix-b-scatter-plots.html#cb15-16"></a>g3 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(data) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-17"><a href="appendix-b-scatter-plots.html#cb15-17"></a><span class="st">  </span><span class="kw">aes</span>(<span class="dt">y =</span> Sayori, <span class="dt">x =</span> Yuri) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-18"><a href="appendix-b-scatter-plots.html#cb15-18"></a><span class="st">  </span><span class="kw">geom_jitter</span>(<span class="dt">col =</span> <span class="st">&#39;forestgreen&#39;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb15-19"><a href="appendix-b-scatter-plots.html#cb15-19"></a><span class="st">  </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&#39;lm&#39;</span>) <span class="op">+</span></span>
+<span id="cb15-20"><a href="appendix-b-scatter-plots.html#cb15-20"></a><span class="st">  </span><span class="kw">theme_light2</span>()</span>
+<span id="cb15-21"><a href="appendix-b-scatter-plots.html#cb15-21"></a></span>
+<span id="cb15-22"><a href="appendix-b-scatter-plots.html#cb15-22"></a><span class="kw">grid.arrange</span>(g1, g2, g3, <span class="dt">nrow =</span> <span class="dv">2</span>, <span class="dt">ncol =</span> <span class="dv">2</span>, <span class="dt">newpage =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;
+## `geom_smooth()` using formula &#39;y ~ x&#39;
+## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="DDLC_web_files/figure-html/appendixB-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="appendix-a-full-dataset.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
